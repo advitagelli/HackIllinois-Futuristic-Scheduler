@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { getEvents, Event } from '@/api/events';
 import { EventCard } from '@/components/EventCard';
+import MapView from 'react-native-maps';
 
 export default function HomeScreen() {
   const { data: events, isLoading, error } = useQuery<Event[]>({

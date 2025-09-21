@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Linking, Alert, TouchableOpacity } from 'react-native';
 import { format } from 'date-fns';
 import type { Event } from '@/api/events';
 
@@ -9,7 +9,25 @@ interface EventCardProps {
 
 export const EventCard = ({ event }: EventCardProps) => {
   const formattedStartTime = format(new Date(event.startTime * 1000), 'p');
-  const location = event.locations[0]?.description || 'TBD';
+  const locationData = event.locations?.[0];
+  const location = locationData?.description || 'TBD';
+  const latitude = locationData?.latitude || 0;
+  const longitude = locationData?.longitude || 0;
+
+  const googleMapsLinker = async () => {
+    if (latitude == null || longitude == null) return;
+
+    const gMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+
+    try {
+      await Linking.openURL(gMapsUrl);
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while trying to open the map.");
+      console.error(error);
+    }
+  };
+
+
 
   return (
     <View style={styles.eventItemContainer}>
@@ -50,7 +68,9 @@ export const EventCard = ({ event }: EventCardProps) => {
         </View>
         <Text style={styles.description}>{event.description}</Text>
         <View style={styles.detailsRow}>
-          <Text style={styles.detailText}>▶ {location}</Text>
+          <TouchableOpacity onPress={googleMapsLinker} disabled={latitude == null || longitude == null}>
+            <Text style={styles.detailText}>▶ {location}</Text>
+          </TouchableOpacity>
           <Text style={styles.detailText}>◆ {formattedStartTime}</Text>
         </View>
       </View>
@@ -284,4 +304,4 @@ const styles = StyleSheet.create({
 
 // REFERENCES: 
 // Futuristic UI inspiration: https://stock.adobe.com/images/hud-game-element-futuristic-tech-screen-template-with-text-messages-warning-technology-frame-vector-attention-interface-hologram-for-gaming-space-management/328843812
-// Anthopic, Claude: <PDF Transcript in the same directory>
+// Anthopic, Claude: https://claude.ai/share/77f72442-d87b-450c-90d3-28659d31d6ee
